@@ -55,10 +55,10 @@ export const loginUser = async (req, res) => {
 
     res.status(200).json({
       _id: user._id,
-      name: user.name,
+      
       email: user.email,
-      role: user.role,
       token: generateToken(user._id),
+      message: "Login Successful"
     });
   } catch (err) {
     res.status(500).json({ error: 'Login failed' });

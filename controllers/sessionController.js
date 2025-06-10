@@ -1,5 +1,3 @@
-// controllers/sessionController.js
-
 export const startSession = async (req, res) => {
   try {
     // TODO: Add logic to create and save a new session for the user
