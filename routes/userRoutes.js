@@ -7,7 +7,7 @@ import {
   updateUserById,
   deleteUserById,
 } from '../controllers/userController.js';
-import { protect, isAdmin } from '../middleware/authMiddleware.js';
+import { protect, isAdmin } from '../middlewares/authMiddleware.js';
 import { adminOnlyController } from '../controllers/adminController.js';
 
 // Admin-only user operations

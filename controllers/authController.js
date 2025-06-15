@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
+  // No expiresIn field means token never expires
+  return jwt.sign({ id }, process.env.JWT_SECRET);
 };
+
+// controllers/authController.js
 
 // @desc    Register a new user
 // @route   POST /api/users/register

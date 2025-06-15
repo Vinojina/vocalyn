@@ -41,6 +41,12 @@ router.delete('/users/:id', protect, isAdmin, deleteUser);
 router.put('/users/:id/role', protect, isAdmin, updateUserRole);
 router.get('/users/:id', protect, isAdmin, getUserById);
 
+router.put('/users/:id', (req, res) => {
+    const userId = req.params.id;
+    res.send(`User ${userId} updated`);
+});
+
+
 
 
 import {
