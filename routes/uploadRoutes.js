@@ -1,9 +1,10 @@
 import express from 'express';
-import upload from '../middlewares/upload.js'; // multer config
-import { uploadSong } from '../controllers/songController.js';
+import { addSong } from '../controllers/songController.js';
+import { protect, isAdmin } from '../middlewares/authMiddleware.js';
+import { uploadFields } from '../middlewares/upload.js';
 
 const router = express.Router();
 
-router.post('/upload', upload.single('audio'), uploadSong);
-
-export default router;
+router.post('/add', protect, isAdmin, uploadFields, addSong);
+router.get('/all', protect, getAllSongs);
+router.delete('/:id', protect, isAdmin, deleteSong);

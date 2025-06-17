@@ -13,7 +13,7 @@ import { adminOnlyController } from '../controllers/adminController.js';
 // Admin-only user operations
 router.route('/:id')
   .get(protect, isAdmin, getUserById)
-  .put(protect, isAdmin, updateUserById)
+  .put(protect, updateUserById)
  .delete(protect, isAdmin, deleteUserById);
   router.get('/admin-data', protect, isAdmin, adminOnlyController);
 

@@ -25,6 +25,7 @@ app.use(cors());
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
 // Routes
 app.get("/", (req, res) => res.send("API is working"));
 
