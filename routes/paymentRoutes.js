@@ -1,12 +1,20 @@
 import express from 'express';
-import { purchaseSong } from '../controllers/paymentController.js';
-import { protect } from '../middlewares/authMiddleware.js';
-import { makePayment } from '../controllers/paymentController.js';
-
+import {
+  purchaseSong,
+  makePayment,
+  getPayments,
+  getPaymentStats
+} from '../controllers/paymentController.js';
+import { protect, isAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+// User routes
 router.post('/purchase', protect, purchaseSong);
-router.post('/song-payment', makePayment);
+router.post('/process', protect, makePayment);
+
+// Admin routes
+router.get('/history', protect, isAdmin, getPayments);
+router.get('/stats', protect, isAdmin, getPaymentStats);
 
 export default router;

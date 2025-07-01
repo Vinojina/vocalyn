@@ -11,32 +11,25 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// @desc   Delete a user by ID (Admin only)
-// @route  DELETE /api/admin/users/:id
-// @access Private/Admin
 export const deleteUser = async (req, res) => {
   try {
-    console.log('🧨 Deleting user ID:', req.params.id); // Log ID
+    console.log(' Deleting user ID:', req.params.id); 
 
     const user = await User.findById(req.params.id);
     if (!user) {
-      console.log('❌ User not found');
+      console.log(' User not found');
       return res.status(404).json({ message: 'User not found' });
     }
 
     await user.deleteOne();
-    console.log('✅ User deleted successfully');
+    console.log('User deleted successfully');
     res.json({ message: 'User deleted' });
   } catch (error) {
-    console.error('🔥 Error deleting user:', error.message); // Print actual error
+    console.error('Error deleting user:', error.message); // Print actual error
     res.status(500).json({ message: 'Failed to delete user' });
   }
 };
 
-
-// @desc   Update user role (Admin only)
-// @route  PUT /api/admin/users/:id/role
-// @access Private/Admin
 export const updateUserRole = async (req, res) => {
   const { role } = req.body;
 
@@ -48,7 +41,7 @@ export const updateUserRole = async (req, res) => {
     await user.save();
     res.json({ message: `User role updated to ${role}` });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update user role' });
+    res.status(500).json({ message: 'Failed to update user role', error });
   }
 };
 export const adminOnlyController = (req, res, next) => {
@@ -69,7 +62,7 @@ export const getUserById = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error('Error in getUserById:', error.message); // 👈 log it!
+    console.error('Error in getUserById:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };

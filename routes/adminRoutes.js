@@ -28,23 +28,34 @@ export const protect = async (req, res, next) => {
   }
 };
 
-export const isAdmin = (req, res, next) => {
-  console.log('✅ isAdmin middleware is active');
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Not authorized as an admin' });
+// export const isAdmin = (req, res, next) => {
+//   console.log('✅ isAdmin middleware is active');
+//   if (req.user && req.user.role === 'admin') {
+//     next();
+//   } else {
+//     res.status(403).json({ message: 'Not authorized as an admin' });
+//   }
+// };
+
+export const checkRole = (role) => {
+  return (req, res, next) => {
+    if (req.user.role !== role){
+      return res.status(403).json({error:'forbidden'});
+  }
+  next();
   }
 };
-router.get('/users', getAllUsers);
-router.delete('/users/:id', protect, isAdmin, deleteUser);
-router.put('/users/:id/role', protect, isAdmin, updateUserRole);
-router.get('/users/:id', protect, isAdmin, getUserById);
+
+router.get('/users',protect, getAllUsers);
+router.delete('/users/:id', protect, deleteUser);
+router.put('/users/:id/role', protect, checkRole('admin'), updateUserRole);
+router.get('/users/:id', protect, getUserById);
 
 router.put('/users/:id', (req, res) => {
     const userId = req.params.id;
     res.send(`User ${userId} updated`);
 });
+
 
 
 
@@ -56,4 +67,3 @@ import {
   getUserById,
 } from '../controllers/adminController.js';
 export default router;
-

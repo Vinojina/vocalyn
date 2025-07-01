@@ -22,7 +22,9 @@ const songSchema = new mongoose.Schema({
   level: {
     type: String,
     enum: ['beginner', 'intermediate', 'advanced'],
-    required: true
+    required: true,
+    lowercase: true,
+    trim: true
   },
   status: {
     type: String,

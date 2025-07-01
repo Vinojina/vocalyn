@@ -14,7 +14,13 @@ export const addSong = async (req, res) => {
       return res.status(400).json({ message: 'Audio file is required' });
     }
 
-    const audioUrl = `/uploads/${req.files.audio[0].filename}`;
+    const audioFile = req.files.audio[0];
+    const validAudioTypes = ['audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp4'];
+    if (!validAudioTypes.includes(audioFile.mimetype)) {
+      return res.status(400).json({ message: 'Unsupported audio format' });
+    }
+
+    const audioUrl = `/uploads/${audioFile.filename}`;
 
     let lyricsContent = '';
     if (req.files.lyricsFile) {

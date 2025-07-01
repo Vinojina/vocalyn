@@ -1,5 +1,5 @@
 // routes/userRoutes.js
-
+import User from '../models/User.js';
 import express from 'express';
 const router = express.Router();
 import {
@@ -15,7 +15,15 @@ router.route('/:id')
   .get(protect, isAdmin, getUserById)
   .put(protect, updateUserById)
  .delete(protect, isAdmin, deleteUserById);
-  router.get('/admin-data', protect, isAdmin, adminOnlyController);
+router.get('/admin-data', protect, isAdmin, adminOnlyController);
+  
+router.get('/profile', protect, async (req, res) => {
+  const user = await User.findById(req.user.id).select('-password');
+  res.json(user);
+});
+
+
+
 
 
 export default router;
