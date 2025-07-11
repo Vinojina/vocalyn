@@ -2,9 +2,6 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-
-
-
 // Improved token generator with better error handling
 const generateToken = (payload) => {
   try {
@@ -54,24 +51,6 @@ export const loginUser = async (req, res) => {
 
   try {
     console.log(`Login attempt for: ${email}`);
-    
-    // Hardcoded admin login (for development only)
-    // if (email === 'vinojina@gmail.com' && password === 'admin123') {
-    //   console.log('Hardcoded admin login attempt');
-    //   const token = generateToken({ id: 'admin', role: 'admin' });
-
-    //   return res.status(200).json({
-    //     success: true,
-    //     _id: 'admin',
-    //     name: 'Admin',
-    //     email: 'vinojina@gmail.com',
-    //     role: 'admin',
-    //     token,
-    //     message: 'Admin login successful',
-    //   });
-    // }
-
-    // Normal user login
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       console.log('No user found with email:', email);

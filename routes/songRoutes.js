@@ -2,14 +2,16 @@ import express from 'express';
 import {
   addSong,
   deleteSong,
-  getAllSongs,
-  uploadSong
+  getSongById
 } from '../controllers/songController.js';
 import Song from '../models/Song.js';
 import { protect, isAdmin } from '../middlewares/authMiddleware.js';
 import { uploadFields } from '../middlewares/upload.js';
-
+import upload from '../middlewares/upload.js';
+import { uploadRecording } from '../controllers/songController.js';
 const router = express.Router();
+
+console.log('songRoutes.js loaded');
 
 // Get songs by level
 router.get('/beginner', async (req, res) => {
@@ -50,20 +52,23 @@ router.get('/:songId', async (req, res) => {
   }
 });
 
-// In your backend (routes/songs.js)
-router.get('/all-songs', async (req, res) => {
+
+router.get('/all-songs', protect, async (req, res) => {
+  console.log('GET /all-songs called');
   try {
-    const songs = await Song.find().sort({ createdAt: -1 });
-    res.json(songs);
-  } catch (err) {
-    console.error('Error fetching songs:', err);
-    res.status(500).json({ message: 'Failed to fetch songs' });
+    const songs = await Song.find({});
+    res.status(200).json(songs);
+  } catch (error) {
+    console.error('❌ getAllSongs error:', error); // Log full error object
+    res.status(500).json({ message: 'Failed to fetch songs', error: error.message, stack: error.stack });
   }
 });
 
-// Admin routes
-router.get('/all-songs', getAllSongs);
+
+router.get ('song/:id',getSongById); 
 router.post('/addSong', protect, isAdmin, uploadFields, addSong);
 router.delete('/:id', protect, isAdmin, deleteSong);
+router.post('/recordings', upload.single('recording'), uploadRecording);
+
 
 export default router;

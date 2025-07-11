@@ -69,15 +69,17 @@ export const deleteSong = async (req, res) => {
 
 export const getAllSongs = async (req, res) => {
   try {
+    console.log("⏳ Fetching all songs from DB...");
     const songs = await Song.find();
+    console.log("✅ Songs fetched:", songs.length);
     res.status(200).json(songs);
   } catch (err) {
-    console.error('Failed to fetch songs:', err);
-    res.status(500).json({ message: 'Failed to fetch songs' });
+    console.error("❌ Failed to fetch songs:", err.message);
+    res.status(500).json({ message: "Failed to fetch songs", error: err.message });
   }
 };
 
-export const SongByID = async (req, res) => {
+export const getSongById = async (req, res) => {
   try {
     const songId = req.params.id;
     const song = await Song.findById(songId);
@@ -103,5 +105,19 @@ export const uploadSong = async (req, res) => {
   } catch (err) {
     console.error('Failed to upload song:', err);
     res.status(500).json({ message: 'Failed to upload song' });
+  }
+};
+
+export const uploadRecording = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.status(201).json({ message: 'Recording uploaded successfully', fileUrl });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: 'Server error during upload' });
   }
 };

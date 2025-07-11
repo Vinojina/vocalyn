@@ -1,5 +1,3 @@
-// models/Activity.js
-
 import mongoose from 'mongoose';
 
 const activitySchema = new mongoose.Schema({

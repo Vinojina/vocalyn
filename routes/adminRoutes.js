@@ -1,8 +1,8 @@
-// middleware/authMiddleware.js
-
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import express from 'express';
+import { isAdmin } from '../middlewares/authMiddleware.js';
+import Song from '../models/Song.js';
 
 const router = express.Router();
 
@@ -28,15 +28,6 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// export const isAdmin = (req, res, next) => {
-//   console.log('✅ isAdmin middleware is active');
-//   if (req.user && req.user.role === 'admin') {
-//     next();
-//   } else {
-//     res.status(403).json({ message: 'Not authorized as an admin' });
-//   }
-// };
-
 export const checkRole = (role) => {
   return (req, res, next) => {
     if (req.user.role !== role){
@@ -47,22 +38,26 @@ export const checkRole = (role) => {
 };
 
 router.get('/users',protect, getAllUsers);
-router.delete('/users/:id', protect, deleteUser);
 router.put('/users/:id/role', protect, checkRole('admin'), updateUserRole);
 router.get('/users/:id', protect, getUserById);
+
+router.get('/all-songs', protect, isAdmin, async (req, res) => {
+  try {
+    const songs = await Song.find({});
+    res.json(songs);
+  } catch (error) {
+    console.error('Error fetching songs:', error);
+    res.status(500).json({ message: 'Server error', details: error.message });
+  }
+});
 
 router.put('/users/:id', (req, res) => {
     const userId = req.params.id;
     res.send(`User ${userId} updated`);
 });
 
-
-
-
-
 import {
   getAllUsers,
-  deleteUser,
   updateUserRole,
   getUserById,
 } from '../controllers/adminController.js';

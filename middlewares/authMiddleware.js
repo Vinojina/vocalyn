@@ -1,13 +1,17 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-// Protect middleware - verifies JWT and attaches user to req
+/**
+ * Middleware: Protect
+ * Verifies JWT and attaches user to request object
+ */
 export const protect = async (req, res, next) => {
   console.log('🔒 Protect middleware triggered');
 
+  let token;
+
   try {
     // 1. Get token from Authorization header or cookie
-    let token;
     if (req.headers.authorization?.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies?.token) {
@@ -15,69 +19,68 @@ export const protect = async (req, res, next) => {
     }
 
     if (!token) {
-      console.warn('⚠️ No token found');
-      return res.status(401).json({ 
+      console.warn('⚠️ No token found in request');
+      return res.status(401).json({
         success: false,
-        message: 'Not authorized, no token' 
+        message: 'Not authorized, no token provided',
       });
     }
 
-    // 2. Verify token
+    // 2. Decode token (⚠️ no expiry check because it's now non-expiring)
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded token:', decoded);
+    console.log('✅ JWT Decoded:', decoded);
 
-    // 3. Find user in DB and exclude password
+    // 3. Find the user
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
-      console.error('❌ User not found in database');
-      return res.status(401).json({ 
-        success: false,
-        message: 'User not found' 
-      });
+      return res.status(401).json({ success: false, message: 'User not found' });
     }
 
-    console.log('User fetched from DB:', user);
-
-    // 4. Attach user to req
     req.user = user;
-    console.log(`✅ Authenticated user: ${user._id} (${user.role || 'no role'}) isAdmin: ${user.isAdmin}`);
-
+    console.log(`✅ Authenticated user: ${user.email} | role: ${user.role} | isAdmin: ${user.isAdmin}`);
     next();
+
   } catch (error) {
-    console.error('❌ Authentication failed:', error.message);
-
-    let message = 'Not authorized, token failed';
-    if (error.name === 'TokenExpiredError') message = 'Token expired';
-    else if (error.name === 'JsonWebTokenError') message = 'Invalid token';
-
-    res.status(401).json({ 
-      success: false,
-      message 
-    });
+    console.error('❌ Token verification failed:', error.message);
+    res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
 
-// isAdmin middleware - allows access only if user is admin by role or boolean flag
+/**
+ * Admin Middleware
+ */
 export const isAdmin = (req, res, next) => {
-  console.log(`🛡️ Admin check for user: ${req.user?._id || 'unauthenticated'}`);
-
-  if (req.user?.role === 'admin' || req.user?.isAdmin === true) {
-    console.log('✅ Admin access granted');
+  if (req.user?.role === 'admin' || req.user?.isAdmin) {
     return next();
   }
-
-  console.warn(`⛔ Admin access denied. Role: ${req.user?.role || 'none'}, isAdmin: ${req.user?.isAdmin || false}`);
   res.status(403).json({
     success: false,
     message: 'Admin privileges required',
-    yourRole: req.user?.role || 'unauthenticated',
   });
 };
 
-// Optional token verification endpoint handler
+/**
+ * Role Checker
+ */
+export const checkRole = (requiredRole) => {
+  return (req, res, next) => {
+    if (req.user?.role === requiredRole) return next();
+    res.status(403).json({
+      success: false,
+      message: `Access denied: requires ${requiredRole} role`,
+    });
+  };
+};
+
+/**
+ * Token Verifier
+ */
 export const verifyToken = async (req, res) => {
   try {
-    // If this runs, protect middleware passed and token is valid
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Not authorized' });
+    }
+
     res.status(200).json({
       success: true,
       user: {
@@ -86,12 +89,12 @@ export const verifyToken = async (req, res) => {
         email: req.user.email,
         role: req.user.role,
         isAdmin: req.user.isAdmin,
-      }
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Token verification failed'
+      message: 'Token verification failed',
     });
   }
 };

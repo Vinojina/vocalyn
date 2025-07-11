@@ -1,5 +1,3 @@
-// routes/sessionRoutes.js
-
 import express from 'express';
 import {
   startSession,

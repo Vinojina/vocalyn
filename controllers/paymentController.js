@@ -1,6 +1,6 @@
-// controllers/paymentController.js
 import User from '../models/User.js';
 import Song from '../models/Song.js';
+import Payment from '../models/Payment.js';
 
 export const purchaseSong = async (req, res) => {
   try {
@@ -14,9 +14,9 @@ export const purchaseSong = async (req, res) => {
     }
 
     const song = await Song.findById(songId);
-    if (!song || song.status !== 'premium') {
-      return res.status(400).json({ message: 'Invalid or non-premium song' });
-    }
+if (!song || song.status !== 'premium') {
+  return res.status(400).json({ message: 'Invalid or non-premium song' });
+}
 
     const user = await User.findById(req.user.id);
     if (!user) {

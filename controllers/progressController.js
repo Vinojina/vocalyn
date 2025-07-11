@@ -1,4 +1,3 @@
-// controllers/progressController.js
 import Progress from '../models/progress.js';
 import Song from '../models/Song.js';
 
