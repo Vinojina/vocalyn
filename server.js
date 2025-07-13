@@ -12,6 +12,7 @@ import songRoutes from './routes/songRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import feedbackRoute from './routes/feedback.js';
 
 dotenv.config();
 connectDB();
@@ -59,6 +60,8 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/songs', songRoutes);
+app.use('/api/feedback', feedbackRoute);
+
 
 // 🔻 Error handler
 app.use((err, req, res, next) => {

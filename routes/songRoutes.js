@@ -2,7 +2,8 @@ import express from 'express';
 import {
   addSong,
   deleteSong,
-  getSongById
+  getSongById,
+  getSongsByLevelForUser
 } from '../controllers/songController.js';
 import Song from '../models/Song.js';
 import { protect, isAdmin } from '../middlewares/authMiddleware.js';
@@ -64,6 +65,8 @@ router.get('/all-songs', protect, async (req, res) => {
   }
 });
 
+// Get songs by level for user (with lock logic)
+router.get('/level/:level', protect, getSongsByLevelForUser);
 
 router.get ('song/:id',getSongById); 
 router.post('/addSong', protect, isAdmin, uploadFields, addSong);

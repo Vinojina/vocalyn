@@ -121,3 +121,32 @@ export const uploadRecording = async (req, res) => {
     res.status(500).json({ error: 'Server error during upload' });
   }
 };
+
+// Helper: filter songs by payment status for user
+export const getSongsByLevelForUser = async (req, res) => {
+  try {
+    const { level } = req.params;
+    const user = req.user; 
+    const songs = await Song.find({ level });
+
+    // If user is admin, return all songs
+    if (user && (user.role === 'admin' || user.isAdmin)) {
+      return res.status(200).json(songs);
+    }
+
+    const paidSongs = user?.paidSongs || [];
+    const filtered = songs.map(song => {
+      if (song.status === 'free') {
+        return { ...song.toObject(), locked: false };
+      } else {
+        // premium song
+        const unlocked = paidSongs.includes(song._id.toString());
+        return { ...song.toObject(), locked: !unlocked };
+      }
+    });
+    res.status(200).json(filtered);
+  } catch (error) {
+    console.error('Failed to fetch songs by level for user:', error);
+    res.status(500).json({ message: 'Failed to fetch songs', error: error.message });
+  }
+};
