@@ -71,7 +71,7 @@ router.get('/level/:level', protect, getSongsByLevelForUser);
 router.get ('song/:id',getSongById); 
 router.post('/addSong', protect, isAdmin, uploadFields, addSong);
 router.delete('/:id', protect, isAdmin, deleteSong);
-router.post('/recordings', upload.single('recording'), uploadRecording);
+router.post('/recordings', protect, upload.single('recording'), uploadRecording);
 
 
 export default router;

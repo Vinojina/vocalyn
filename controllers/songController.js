@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Song from '../models/Song.js';
+import axios from 'axios';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,16 +83,18 @@ export const getAllSongs = async (req, res) => {
 export const getSongById = async (req, res) => {
   try {
     const songId = req.params.id;
+    // Validate MongoDB ObjectId format
+    if (!songId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: 'Invalid song ID format' });
+    }
     const song = await Song.findById(songId);
-
     if (!song) {
       return res.status(404).json({ message: 'Song not found' });
     }
-
     res.status(200).json(song);
   } catch (err) {
     console.error('Failed to fetch song by ID:', err);
-    res.status(500).json({ message: 'Failed to fetch song' });
+    res.status(500).json({ message: 'Failed to fetch song', error: err.message });
   }
 };
 export const uploadSong = async (req, res) => {
@@ -114,8 +117,27 @@ export const uploadRecording = async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    const filePath = req.file.path;
     const fileUrl = `/uploads/${req.file.filename}`;
-    res.status(201).json({ message: 'Recording uploaded successfully', fileUrl });
+
+    // Save the recording as a Song associated with the user
+    const newSong = new Song({
+      user: req.user._id,
+      title: req.body.title || req.file.originalname || 'Untitled Recording',
+      artist: req.body.artist || req.user.name || 'Unknown',
+      audioUrl: fileUrl,
+      lyrics: req.body.lyrics || '',
+      genre: req.body.genre || '',
+      level: req.body.level || 'beginner',
+      status: 'free',
+    });
+    await newSong.save();
+
+    res.status(201).json({
+      message: 'Recording uploaded and saved successfully',
+      fileUrl,
+      song: newSong
+    });
   } catch (err) {
     console.error('Upload error:', err);
     res.status(500).json({ error: 'Server error during upload' });

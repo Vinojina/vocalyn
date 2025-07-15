@@ -12,7 +12,7 @@ import songRoutes from './routes/songRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
-import feedbackRoute from './routes/feedback.js';
+import feedbackRoute from './routes/feedbackRoute.js';
 
 dotenv.config();
 connectDB();
@@ -28,9 +28,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body parsers with increased limit
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ✅ Serve uploaded files with correct audio headers
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
@@ -73,9 +73,6 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found', attemptedUrl: req.originalUrl });
 });
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
 const PORT = process.env.PORT || 5000;
